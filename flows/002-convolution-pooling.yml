@@ -1,0 +1,165 @@
+title: "2D Convolution, 2D Pooling"
+description: |
+    # 2D Convolution, 2D Pooling
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: convolution_pooling
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+-
+    id: quiz_start
+    shuffle: False
+    pages:
+
+    -
+            type: PythonCodeQuestion
+            id: convolution
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # 2D Convolution
+                Your code will take an input tensor `input`
+                with shape `(n, iC, H, W)` and a kernel `kernel`
+                with shape `(oC, iC, kH, kW)`. It needs then to apply
+                a 2D convolution over `input`, using `kernel` as kernel tensor and no bias,
+                using a stride of 1, no dilation, no grouping, and no padding,
+                and store the result in `out`.
+                Both `input` and `kernel` have dtype `torch.float32`.
+
+            setup_code: |
+                import random
+                import torch
+
+                n = random.randint(2, 6)
+                iC = random.randint(2, 6)
+                oC = random.randint(2, 6)
+                H = random.randint(10, 20)
+                W = random.randint(10, 20)
+                kH = random.randint(2, 6)
+                kW = random.randint(2, 6)
+
+                input = torch.rand(n, iC, H, W, dtype=torch.float32)
+                kernel = torch.rand(oC, iC, kH, kW, dtype=torch.float32)
+
+            names_for_user: [input, kernel]
+
+            names_from_user: [out]
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import numpy as np
+                import torch
+                from torch.nn import functional as F
+
+                # Check correctness
+                ref = F.conv2d(input, kernel)
+                feedback.check_torch_array_features("out", ref, out)
+
+                # Check accuracy
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete
+
+    -
+            type: PythonCodeQuestion
+            id: max_pooling
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # 2D Max Pooling
+                Your code will take as input:
+
+                - a tensor `input` with shape `(n, iC, H, W)`;
+                - a kernel height `kH` and a kernel width `kW`;
+                - a stride `s`;
+
+                It needs then to apply
+                a 2D max-pooling over `input`, using the given kernel size and
+                stride, and store the result in `out`.
+                Input `input` has dtype `torch.float32`.
+
+            setup_code: |
+                import random
+                import torch
+
+                n = random.randint(2, 6)
+                iC = random.randint(2, 6)
+                H = random.randint(10, 20)
+                W = random.randint(10, 20)
+                kH = random.randint(2, 5)
+                kW = random.randint(2, 5)
+                s = random.randint(2, 3)
+                input = torch.rand((n, iC, H, W), dtype=torch.float32)
+
+            names_for_user: [input, kH, kW, s]
+
+            names_from_user: [out]
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import torch
+                from torch.nn import functional as F
+
+                # Check correctness
+                ref = F.max_pool2d(input, kernel_size=(kH, kW), stride=s)
+                feedback.check_torch_array_features("out", ref, out)
+
+                # Check accuracy
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete

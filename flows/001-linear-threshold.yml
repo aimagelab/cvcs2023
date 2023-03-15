@@ -1,0 +1,325 @@
+title: "Saturated arithmetic, Thresholds"
+description: |
+    # Saturated arithmetic, Thresholds
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: linear_hist_threshold
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+-
+    id: quiz_start
+    shuffle: False
+    pages:
+
+    -
+            type: PythonCodeQuestion
+            id: linear_stretch
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # Linear stretch
+                Your code will take as input a color image `im`
+                (a `torch.Tensor` with dtype `torch.uint8` and rank 3) and two scalars `a` and `b`. It
+                must apply a pixel-wise linear transformation (every pixel
+                $p$ is transformed to $a\cdot p + b$). The code should produce a
+                new image `out` with the same shape and dtype.
+
+                `a` and `b` can be either ints or floats.
+                Be careful to: compute the exact result, round to nearest integer and then clip between 0 and 255.
+            setup_code: |
+                import random
+                import numpy as np
+                import torch
+                from skimage import data
+                from skimage.transform import resize
+
+                im = data.coffee()
+                im = resize(im, (im.shape[0] // 8, im.shape[1] // 8), mode='reflect', preserve_range=True, anti_aliasing=True).astype(np.uint8)
+                im = np.swapaxes(np.swapaxes(im, 0, 2), 1, 2)
+                im = torch.from_numpy(im)
+
+                a = random.uniform(0,2)
+                b = random.uniform(-50,50)
+            names_for_user: [im, a, b]
+
+            names_from_user: [out]
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import numpy as np
+
+                # Display inputs
+                msg = "<p>Using inputs:</p>"
+
+                msg += "<p><pre>im = </pre></p>"
+                im_to_show = np.swapaxes(np.swapaxes(im.numpy(), 1, 2), 0, 2)
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+
+                msg += "<p><pre>a = " + str(a) + "</pre></p>"
+                msg += "<p><pre>b = " + str(b) + "</pre></p>"
+                feedback.add_feedback(msg)
+
+                # Check correctness
+                ref = torch.clamp(torch.round(im.type(torch.float32) * a + b), 0, 255).type(torch.uint8)
+                feedback.check_torch_array_features("out", ref, out)
+
+                msg = "<p>Your code provided the following output:</p>"
+                msg += "<p><pre>out = </pre></p>"
+                im_to_show = np.swapaxes(np.swapaxes(out.numpy(), 1, 2), 0, 2)
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                msg += "<p>The reference output was:</p>"
+                msg += "<p><pre>out = </pre></p>"
+                im_to_show = np.swapaxes(np.swapaxes(ref.numpy(), 1, 2), 0, 2)
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                feedback.add_feedback(msg)
+
+                # Check accuracy
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  torch.set_printoptions(threshold=9999)
+                  msg = "<p>Your code returned:</p><pre>" + str(out) + "</pre>"
+                  msg += "<p>While the reference output was:</p><pre>" + str(ref) + "</pre>"
+                  feedback.add_feedback(msg)
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete
+
+
+    -
+            type: PythonCodeQuestionWithHumanTextFeedback
+            rubric: ""
+            human_feedback_percentage: 50
+            id: threshold
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # Thresholding
+                Given an input grayscale image `im` (a `torch.Tensor` with
+                shape `(H, W)` and dtype `torch.uint8`), write a code which
+                performs a binary thresholding of the image at cut value
+                `val`, and stores the result in `out`.
+
+                `out` should be another image, with the same shape of `im`,
+                and with all the pixels greater than the threshold
+                set to 255, all the others set to 0.
+
+                Be careful not to modify the original tensor in-place:
+                the function should perform the thresholding on a
+                copy of the image.
+
+            setup_code: |
+                import random
+                import numpy as np
+                from skimage import data
+                from skimage.transform import resize
+                import torch
+
+                im = data.camera()
+                im = resize(im, (im.shape[0] // 2, im.shape[1] // 2), mode='reflect', preserve_range=True, anti_aliasing=True).astype(np.uint8)
+                im = torch.from_numpy(im)
+                val = random.randint(0, 255)
+
+            names_for_user: [im, val]
+
+            names_from_user: [out]
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import numpy as np
+                import torch
+
+                # Display inputs
+                msg = "<p>Using inputs:</p>"
+
+                msg += "<p><pre>im = </pre></p>"
+                im_to_show = im.numpy()
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                msg += "<p><pre>val = " + str(val) + "</pre></p>"
+                feedback.add_feedback(msg)
+
+                # Check correctness
+                ref = (im > val).type(torch.uint8) * 255
+                feedback.check_torch_array_features("out", ref, out)
+
+                msg = "<p>Your code provided the following output:</p>"
+                msg += "<p><pre>out = </pre></p>"
+                im_to_show = out.numpy()
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                msg += "<p>The reference output was:</p>"
+                msg += "<p><pre>out = </pre></p>"
+                im_to_show = ref.numpy()
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                feedback.add_feedback(msg)
+
+                # Check accuracy
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  np.set_printoptions(threshold=np.inf)
+                  msg = "<p>Your code returned:</p><pre>" + str(out) + "</pre>"
+                  msg += "<p>While the reference output was:</p><pre>" + str(ref) + "</pre>"
+                  feedback.add_feedback(msg)
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete
+
+
+    -
+            type: PythonCodeQuestionWithHumanTextFeedback
+            rubric: ""
+            human_feedback_percentage: 50
+            id: otsu_threshold
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # Otsu Thresholding
+                Given an input grayscale image `im` (a `torch.Tensor` with
+                shape `(H, W)` and dtype `torch.uint8`), write a code which
+                computes the Otsu threshold for `im` stores the result in
+                `out`.
+
+                Notice: beware of how the threshold is defined in the Otsu formulas. Your output
+                should be compliant with our first definition of threshold (see slides).
+
+            setup_code: |
+                import random
+                import numpy as np
+                from skimage import data
+                from skimage.transform import resize
+                import torch
+
+                im = data.camera()
+                im = resize(im, (im.shape[0] // 2, im.shape[1] // 2), mode='reflect', preserve_range=True, anti_aliasing=True).astype(np.uint8)
+                im = torch.from_numpy(im)
+
+            names_for_user: [im]
+
+            names_from_user: [out]
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import numpy as np
+                import torch
+
+                # Display inputs
+                msg = "<p>Using inputs:</p>"
+
+                msg += "<p><pre>im = </pre></p>"
+                im_to_show = im.numpy()
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                feedback.add_feedback(msg)
+
+                # Check correctness
+                import cv2
+                ref, _ = cv2.threshold(im.numpy(),0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+                ref = int(ref)
+
+                if not isinstance(out, (complex, float, int, np.number)):
+                  feedback.add_feedback("'%s' is not a number." % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                msg = "<p>Your code provided the following output:</p>"
+                msg += "<p><pre>out = " + str(out) + "</pre></p>"
+                msg += "<p>The reference output was:</p>"
+                msg += "<p><pre>out = " + str(ref) + "</pre></p>"
+                feedback.add_feedback(msg)
+
+                # Check accuracy
+                feedback.check_scalar("out", ref, out)
+
+                feedback.set_points(1)
+                raise GradingComplete
