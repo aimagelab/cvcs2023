@@ -61,6 +61,7 @@ pages:
         - How will you evaluate your results? What kind of results do you expect (e.g. which measures)? What kind of approaches will you compare your results against (e.g. which methods from the literature and/or which baselines)?
 
         If you choose your own methodological and/or applicative scenario, the pipeline of your project should contain:
+        
         - The use of classical image-processing operators (e.g., Filters, morphological operators, etc.)
         - The use of at least a geometric-based algorithm or component (e.g., Perspective distortion correction, visual SLAM, etc.)
         - The use of a retrieval algorithm or component.
