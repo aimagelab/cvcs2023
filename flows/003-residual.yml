@@ -1,0 +1,88 @@
+title: "Residual block"
+description: |
+    # Residual block
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: residual
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+-
+    id: quiz_start
+    shuffle: False
+    pages:
+
+    -
+          type: PythonCodeQuestionWithHumanTextFeedback
+          rubric: ""
+          human_feedback_percentage: 100
+          id: residual
+          access_rules:
+              add_permissions:
+                 - change_answer
+          value: 1
+          timeout: 30
+          show_setup_code: True
+          prompt: |
+              # Residual block
+              A residual block is defined as
+              $$ \mathbf{y} = \sigma(\mathcal{F}(\mathbf{x}) + \mathcal{G}(\mathbf{x})) $$
+              where $\mathbf{x}$ and $\mathbf{y}$ represent the input and output tensors of the block,
+              $\sigma$ is the ReLU activation function,
+              $\mathcal{F}$ is the residual function to be learned
+              and $\mathcal{G}$ is a projection shortcut used to match dimensions between $\mathcal{F}(\mathbf{x})$
+              and $\mathbf{x}$.
+
+              Your code needs to define a `ResidualBlock` class (inherited from `nn.Module`) which implements
+              a residual block. In your code, $\mathcal{F}$ will be implemented with two convolutional layers with a
+              ReLU non-linearity between them, i.e. $\mathcal{F} = \texttt{conv}_2(\sigma(\texttt{conv}_1(\mathbf{x})))$.
+              Batch normalization will also be adopted right after each convolution operation.
+
+              The constructor of the `ResidualBlock` class needs to take the following arguments as input:
+
+              - `inplanes`, the number of channels of $\mathbf{x}$;
+              - `planes`, the number of output channels of $\texttt{conv}_1$ and $\texttt{conv}_2$;
+              - `stride`, the stride of $\texttt{conv}_1$;
+
+              If the shapes of $\mathcal{F}(\mathbf{x})$ and $\mathbf{x}$ do not match (either because
+              `inplanes != planes`, or because `stride > 1`) `ResidualBlock` also needs to apply a projection
+              shortcut $\mathcal{G}$, composed of a convolutional layer with kernel size $1\times 1$, no bias,
+              no padding and stride `stride`, followed by a batch normalization. Otherwise $\mathcal{G}$ is
+              simply the identity function.
+
+              The `forward` method of `ResidualBlock` will take as input the input tensor $\mathbf{x}$ and
+              return the output tensor $\mathbf{y}$, after performing all the operations of a Residual block.
+
+              ### Additional details
+              - Unless otherwise specified, convolutional layers must have $3 \times 3$ kernels, stride 1, padding 1 and no bias.
+              - [Documentation of nn.Module](https://pytorch.org/docs/stable/nn.html#torch.nn.Module)
+
+          names_from_user: [ResidualBlock]
