@@ -55,6 +55,7 @@ pages:
         # Project milestone upload - step 1
 
         From here, you can upload the project milestone. Your project milestone report should be between 2 - 3 pages using the provided template. The following is a suggested structure for your report:
+        
         - Title, Author(s)
         - Introduction: this section introduces your problem, and the overall plan for approaching your problem
         - Problem statement: Describe your problem precisely specifying the dataset to be used, expected results and evaluation
