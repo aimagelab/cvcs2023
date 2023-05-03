@@ -35,7 +35,7 @@ rules:
 
     grade_aggregation_strategy: use_latest
 
-    grade_identifier: 900-project-proposal
+    grade_identifier: project_proposal
     grading:
     -
         credit_percent: 100
