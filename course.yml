@@ -38,6 +38,7 @@ chunks:
         - [2D Convolution, 2D Pooling](flow:002-convolution-pooling)
         - [Residual Block](flow:003-residual)
         - [Object detection](flow:004-detection)
+        - [Geometrical Transforms](flows:005-geometry)
 
         ## Final project and exam
         - [Manage and submit final project](./project)

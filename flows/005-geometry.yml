@@ -1,0 +1,137 @@
+title: "Geometry Transforms"
+description: |
+    # Geometry Transforms
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: template_geometry_hough
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+-
+    id: quiz_start
+    shuffle: False
+    pages:
+    -
+            type: PythonCodeQuestionWithHumanTextFeedback
+            rubric: ""
+            human_feedback_percentage: 100
+            id: stitching
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            data_files:
+              - "question-data/gallery_0.jpg"
+              - "question-data/gallery_1.jpg"
+            prompt: |
+                # Image Stitching
+                Your code will take as input two color images `im_a` and `im_b`
+                (`np.ndarray` with dtype `np.uint8` and shape `(3, H, W)`),
+                depicting the same scene from two different perspectives.
+
+                You then need to:
+
+                - Manually identify (at least) four corresponding pairs of points
+                - Estimate the homography between the first and the second image using the detected
+                  point pairs.
+                - Warp the second image using the estimated transformation matrix.
+                - "Merge" the two images in a single one by sticking one on top of the other.
+
+                The code is expected to show the final result using pyplot
+                (e.g. calling the `imshow` function). When doing this, pay
+                attention to the axis order (their format is `(W, H, 3)`).
+
+                If you employ OpenCV functions, recall that the OpenCV format is `(W, H, 3)`.
+
+                #### Resources
+                - `im_a` can be downloaded [here](/courses/media/vcs2020/question-data/gallery_0.jpg)
+                - `im_b` can be downloaded [here](/courses/media/vcs2020/question-data/gallery_1.jpg)
+                - A sample result can be downloaded [here](/courses/media/vcs2020/question-data/stiching_result.png)
+
+            setup_code: |
+                from io import BytesIO
+                import numpy as np
+                import cv2
+                from skimage import data
+
+                bio = BytesIO(data_files["question-data/gallery_0.jpg"])
+                bytes = np.asarray(bytearray(bio.read()), dtype=np.uint8)
+                im_a = cv2.imdecode(bytes, cv2.IMREAD_COLOR)
+                im_a = np.swapaxes(np.swapaxes(im_a, 0, 2), 1, 2)
+                im_a = im_a[::-1, :, :]  # from BGR to RGB
+
+                bio = BytesIO(data_files["question-data/gallery_1.jpg"])
+                bytes = np.asarray(bytearray(bio.read()), dtype=np.uint8)
+                im_b = cv2.imdecode(bytes, cv2.IMREAD_COLOR)
+                im_b = np.swapaxes(np.swapaxes(im_b, 0, 2), 1, 2)
+                im_b = im_b[::-1, :, :]  # from BGR to RGB
+
+            names_for_user: [im_a, im_b]
+
+            names_from_user: []
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import numpy as np
+
+                # Display inputs
+                msg = "<p>Using inputs:</p>"
+
+                msg += "<p><pre>im_a = </pre></p>"
+                im_to_show = np.swapaxes(np.swapaxes(im_a, 1, 2), 0, 2)
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+
+                msg += "<p><pre>im_b = </pre></p>"
+                im_to_show = np.swapaxes(np.swapaxes(im_b, 1, 2), 0, 2)
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                feedback.add_feedback(msg)
+
+                feedback.add_feedback("This exercise is not evaluated automatically. It will be evaluated by an instructor.")
+                feedback.set_points(1)
+                raise GradingComplete
+
+
