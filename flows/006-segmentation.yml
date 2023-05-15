@@ -1,0 +1,114 @@
+title: "Segmentation Architectures"
+
+# The "|" character introduces a 'block literal', which means all text indented below
+# it is taken literally. The description property holds text marked up with 'Markdown'.
+# See https://documen.tician.de/relate/content.html#relate-markup for more.
+#
+# So the '#' character below introduces a first-level headline (not a comment).
+description: |
+
+    # Segmentation Architectures
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: segmentation
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+    -
+        id: quiz_start
+        shuffle: False
+        pages:
+
+        # Pages can be given in-line (like this one) or brought in by including
+        # them from other files, as below.
+        -
+            type: PythonCodeQuestion
+            id: 2dtransposeconvolution
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # 2D Transpose Convolution
+                Your code will take an input tensor `input`
+                with shape `(n, iC, H, W)`, a kernel `kernel`
+                with shape `(iC, oC, kH, kW)` and a stride `s`.
+
+                It needs then to apply
+                a 2D Transpose convolution over `input`, using `kernel` as kernel tensor,
+                using a stride of `s` on both axes, no dilation, no grouping, and no padding,
+                and store the result in `out`.
+
+                `input` and `kernel` are `torch.Tensor` with `dtype` `torch.float32`. `s` is an integer.
+
+            setup_code: |
+                import random
+                import torch
+
+                n = random.randint(2, 6)
+                iC = random.randint(2, 6)
+                oC = random.randint(2, 6)
+                H = random.randint(10, 20)
+                W = random.randint(10, 20)
+                kH = random.randint(2, 6)
+                kW = random.randint(2, 6)
+                s = random.randint(2, 6)
+
+                input = torch.rand(n, iC, H, W)
+                kernel = torch.rand(iC, oC, kH, kW)
+
+            names_for_user: [input, kernel, s]
+
+            names_from_user: [out]
+
+            test_code: |
+                import random
+                import torch
+                from torch.nn import functional as F
+
+                # Check correctness
+                ref = F.conv_transpose2d(input, kernel, stride=s)
+
+                # Check array features
+                if not isinstance(out, torch.Tensor):
+                  feedback.add_feedback("'%s' is not a torch.Tensor" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+                if out.shape != ref.shape:
+                  feedback.add_feedback("'%s' does not have the correct shape. Expected %s, got %s." % ("out", ref.shape, out.shape))
+                  raise GradingComplete()
+
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete
