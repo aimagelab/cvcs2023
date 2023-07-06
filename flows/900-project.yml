@@ -1,0 +1,84 @@
+title: "Final project submission"
+
+# The "|" character introduces a 'block literal', which means all text indented below
+# it is taken literally. The description property holds text marked up with 'Markdown'.
+# See https://documen.tician.de/relate/content.html#relate-markup for more.
+#
+# So the '#' character below introduces a first-level headline (not a comment).
+description: |
+
+    # Final project submission
+
+    ### Instructions
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall flow. Otherwise, it will be considered in a draft state.
+    - Before taking the exam, **you can always submit a new version** of your project, even if you already completed a session.
+    - The project version which will be used to compute your mark will be the last version uploaded before any member of the group takes the exam.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: False
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, change_answer, send_email_about_flow_page, cannot_see_flow_result]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: project
+    grading:
+    -
+        credit_percent: 100
+
+pages:
+-
+    type: FileUploadQuestion
+    id: report
+    access_rules:
+        add_permissions:
+           - change_answer
+    value: 1
+    maximum_megabytes: 30
+    rubric: ""
+    mime_types: [application/pdf]
+    prompt: |
+        # Project upload - step 1
+
+        From here, you can upload the report describing your project.
+
+        The report should include title, authors, introduction, a related works section, a section on the approach, a results section,
+        discussion and bibliography. It can be from 4 to 8 pages long, and it must be in PDF format.
+
+        A [sample (non mandatory) template](http://cvpr2019.thecvf.com/files/cvpr2019AuthorKit.zip) is available.
+
+-
+    type: FileUploadQuestion
+    id: code
+    access_rules:
+        add_permissions:
+           - change_answer
+    value: 1
+    maximum_megabytes: 500
+    rubric: ""
+    mime_types: [application/octet-stream]
+    prompt: |
+        # Project upload - step 2
+
+        From here, you can upload the code of your project. This should be a single ZIP file.
+
+        - The source code should clearly indicate how to reproduce the proposed pipeline, and where
+        the required outputs are computed.
+        - Additionally, any external resource required to execute the code, apart from the dataset
+        and freely available libraries, should be included in the package.
+        - If external packages are used, you are kindly invited to provide either a readme file
+        or a requirements.txt file.
