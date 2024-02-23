@@ -29,17 +29,11 @@ chunks:
 
     content: |
 
-        # Computer Vision and Cognitive Systems 2023
+        # Computer Vision and Cognitive Systems 2024
 
         Welcome! This platform hosts exercises and tests for the "Computer Vision and Cognitive System" course.
 
         ## Exercises
-        - [Saturated arithmetic, Thresholds](flow:001-linear-threshold)
-        - [2D Convolution, 2D Pooling](flow:002-convolution-pooling)
-        - [Residual Block](flow:003-residual)
-        - [Object detection](flow:004-detection)
-        - [Geometrical Transforms](flow:005-geometry)
-        - [Semantic Segmentation](flow:006-segmentation)
 
         ## Final project and exam
         - [Manage and submit final project](./project)
