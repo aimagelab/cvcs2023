@@ -34,6 +34,7 @@ chunks:
         Welcome! This platform hosts exercises and tests for the "Computer Vision and Cognitive System" course.
 
         ## Exercises
+        - [Saturated arithmetic, Thresholds, Histogram](flow:001-linear-hist-threshold)
 
         ## Final project and exam
         - [Manage and submit final project](./project)
