@@ -1,0 +1,106 @@
+title: "Edge Detection"
+description: |
+    # Edge Detection
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: edge
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+-
+    id: quiz_start
+    shuffle: False
+    pages:
+
+    -
+            type: PythonCodeQuestionWithHumanTextFeedback
+            rubric: ""
+            human_feedback_percentage: 50
+            id: edges
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # Edge detection
+                Your code will take as input a grayscale image `im`
+                (a `torch.Tensor` with dtype `torch.uint8` and shape `(H,W)`).
+                It needs then to:
+
+                - Apply the horizontal and vertical Sobel masks (with a kernel
+                  size of 3) to obtain horizontal and vertical derivatives;
+                - Compute the magnitude and direction of the gradient, and
+                  normalize them properly (see slides);
+                - Diplay the gradient magnitude and derivative jointly in an
+                  HSV image, and then convert it in RGB format (see slides).
+
+                The code is expected to show the final result using pyplot
+                (e.g. calling the `imshow` function). When doing this, pay
+                attention to the axis order.
+
+            setup_code: |
+                import torch
+                from skimage import data
+
+                im = data.gravel()
+                im = im[:128,:128]
+                im = torch.from_numpy(im)
+
+            names_for_user: [im]
+
+            names_from_user: []
+
+            test_code: |
+                import cv2
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import numpy as np
+
+                # Display inputs
+                msg = "<p>Using inputs:</p>"
+
+                msg += "<p><pre>im = </pre></p>"
+                im_to_show = im.numpy()
+                plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+                msg += '<img src="data:image/png;base64,%s" />' % im_base64
+                feedback.add_feedback(msg)
+
+                feedback.add_feedback("This exercise is not evaluated automatically. It will be evaluated by an instructor.")
+                feedback.set_points(1)
+                raise GradingComplete

@@ -35,6 +35,8 @@ chunks:
 
         ## Exercises
         - [Saturated arithmetic, Thresholds, Histogram](flow:001-linear-hist-threshold)
+        - [2D Convolution, 2D Pooling](flow:002-convolution-pooling)
+        - [Edge Detection](flow:003-edge)
 
         ## Final project and exam
         - [Manage and submit final project](./project)
