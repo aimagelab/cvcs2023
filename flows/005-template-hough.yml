@@ -1,0 +1,171 @@
+title: "Template Matching, Hough Transform"
+description: |
+    # Template Matching, Hough Transform
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+notify_on_submit:
+  - lorenzo.baraldi@unimore.it
+
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: template_hough
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+-
+    id: quiz_start
+    shuffle: False
+    pages:
+    -
+            type: PythonCodeQuestion
+            id: template_matching
+            access_rules:
+              add_permissions:
+                - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+              # Template matching
+              Your code will take as input a mini-batch of feature maps `input` (a `torch.Tensor` tensor
+              with dtype `torch.float32` and shape `(n, H, W)`), and a template `template` (a `torch.Tensor` with
+              dtype `torch.float32` and shape `(kH, kW)`).
+              It then needs to compare the template against all samples in the mini-batch in a sliding window
+              fashion, and store the result
+              in `out`.
+
+              `out` will have shape `(n, oH, oW)`, where `oH=H-(kH-1)` and `oW=W-(kW-1)`, and `out[i, :, :]`
+              will contain the similarity between the template and the `i`-th feature map at all valid locations.
+              Use the sum of squared differences as comparison function.
+
+
+            setup_code: |
+              import random
+              import torch
+
+              n = random.randint(1, 3)
+              H = random.randint(10, 20)
+              W = random.randint(10, 20)
+              kH = random.randint(2, 6)
+              kW = random.randint(2, 6)
+              input = torch.rand((n, H, W), dtype=torch.float32)
+              template = torch.rand((kH, kW), dtype=torch.float32)
+
+
+            names_for_user: [input, template]
+
+            names_from_user: [out, ]
+
+            test_code: |
+              import cv2
+              import base64
+              import io
+              import random
+              import numpy as np
+              import torch
+              from torch.nn import functional as F
+
+              # Check correctness
+              ref = []
+              for i in input.numpy():
+                  ref.append(cv2.matchTemplate(i, template.numpy(), method=cv2.TM_SQDIFF))
+
+              ref = torch.from_numpy(np.stack(ref))
+              feedback.check_torch_array_features("out", ref, out)
+
+              # Check accuracy
+              good = torch.allclose(ref, out)
+              if not good:
+                feedback.add_feedback("'%s' is inaccurate" % "out")
+                feedback.set_points(0)
+                raise GradingComplete()
+
+              feedback.set_points(1)
+              raise GradingComplete
+
+
+    -
+            type: PythonCodeQuestionWithHumanTextFeedback
+            rubric: ""
+            human_feedback_percentage: 100
+            id: hough
+            access_rules:
+              add_permissions:
+                - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+              # Hough transform
+              Your code will take as input a greyscale image `im`,
+              (`torch.Tensor` with dtype `torch.uint8` and shape `(H, W)`).
+
+              You then need to:
+
+              - Apply an edge detector.
+              - Apply the Hough transform for circles, using the corresponding OpenCV function.
+
+              The code is expected to show the final result using pyplot
+              (e.g. calling the `imshow` function).
+
+            setup_code: |
+              from io import BytesIO
+              import numpy as np
+              import cv2
+              import torch
+              from skimage import data
+
+              im = torch.from_numpy(data.coins()[160:230, 70:270])
+
+            names_for_user: [im, ]
+
+            names_from_user: []
+
+            test_code: |
+              import cv2
+              import base64
+              import matplotlib.pyplot as plt
+              import io
+              import random
+              import numpy as np
+
+              # Display inputs
+              im = im.numpy()
+              msg = "<p>Using inputs:</p>"
+
+              msg += "<p><pre>im = </pre></p>"
+              im_to_show = im
+              plt.imshow(im_to_show, cmap='gray', vmin=0, vmax=255)
+              buf = io.BytesIO()
+              plt.savefig(buf, format='png')
+              buf.seek(0)
+              im_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+              msg += '<img src="data:image/png;base64,%s" />' % im_base64
+              feedback.add_feedback(msg)
+
+              feedback.add_feedback("This exercise is not evaluated automatically. It will be evaluated by an instructor.")
+              feedback.set_points(1)
+              raise GradingComplete
