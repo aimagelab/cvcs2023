@@ -39,6 +39,7 @@ chunks:
         - [Edge Detection](flow:003-edge)
         - [Residual Block](flow:004-residual)
         - [Template Matching, Hough Transform](flow:005-template-hough)
+        - [Object detection](flow:006-detection)
 
         ## Final project and exam
         - [Manage and submit final project](./project)
