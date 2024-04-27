@@ -41,6 +41,7 @@ chunks:
         - [Template Matching, Hough Transform](flow:005-template-hough)
         - [Object detection](flow:006-detection)
         - [Semantic Segmentation](flow:007-segmentation)
+        - [Geometry Transforms](flow:008-geometry)
 
         ## Final project and exam
         - [Manage and submit final project](./project)

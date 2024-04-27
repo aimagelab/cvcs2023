@@ -29,7 +29,7 @@ rules:
 
     grade_aggregation_strategy: use_latest
 
-    grade_identifier: template_geometry_hough
+    grade_identifier: geometry
     grading:
     -
         credit_percent: 100
