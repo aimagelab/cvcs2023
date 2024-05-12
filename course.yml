@@ -42,6 +42,7 @@ chunks:
         - [Object detection](flow:006-detection)
         - [Semantic Segmentation](flow:007-segmentation)
         - [Geometry Transforms](flow:008-geometry)
+        - [Video Architectures](flow:009-video)
 
         ## Final project and exam
         - [Manage and submit final project](./project)
