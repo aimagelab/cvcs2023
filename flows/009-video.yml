@@ -1,0 +1,188 @@
+title: "Video architectures"
+
+# The "|" character introduces a 'block literal', which means all text indented below
+# it is taken literally. The description property holds text marked up with 'Markdown'.
+# See https://documen.tician.de/relate/content.html#relate-markup for more.
+#
+# So the '#' character below introduces a first-level headline (not a comment).
+description: |
+
+    # Video architectures
+
+    ### Instructions
+    - After completing an exercise, click on "**Submit answer for feedback**" to have your code corrected. Clicking
+      "Save answer" will just save the answer in a draft state.
+    - After completing the session, remember to click on **the green tick box** in the upper-right to submit the
+      overall test. Otherwise, the full test will be considered in a draft state.
+
+rules:
+    start:
+    -
+        if_has_role: [student, ta, instructor]
+        may_start_new_session: True
+        may_list_existing_sessions: True
+
+    -
+        may_start_new_session: False
+        may_list_existing_sessions: True
+
+    access:
+    -
+        permissions: [view, submit_answer, end_session, see_correctness, change_answer, send_email_about_flow_page]
+
+    grade_aggregation_strategy: use_latest
+
+    grade_identifier: video
+    grading:
+    -
+        credit_percent: 100
+
+groups:
+    -
+        id: quiz_start
+        shuffle: False
+        pages:
+
+        # Pages can be given in-line (like this one) or brought in by including
+        # them from other files, as below.
+        -
+            type: PythonCodeQuestion
+            id: convolution3d
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # 3D Convolution
+                Your code will take an input tensor `input`
+                with shape `(n, iC, T, H, W)`, a kernel `kernel`
+                with shape `(oC, iC, kT, kH, kW)` and a bias `bias` with shape
+                `(oC, )`.
+
+                It needs then to apply
+                a 3D convolution over `input`, using `kernel` as kernel tensor and `bias` as bias,
+                using a stride of 1, no dilation, no grouping, and no padding,
+                and store the result in `out`.
+
+                `input`, `kernel` and `bias` are `torch.Tensor` with `dtype` `torch.float32`.
+
+            setup_code: |
+                import random
+                import torch
+
+                n = random.randint(2, 6)
+                iC = random.randint(2, 6)
+                oC = random.randint(2, 6)
+                T = random.randint(10, 20)
+                H = random.randint(10, 20)
+                W = random.randint(10, 20)
+                kT = random.randint(2, 6)
+                kH = random.randint(2, 6)
+                kW = random.randint(2, 6)
+
+                input = torch.rand(n, iC, T, H, W)
+                kernel = torch.rand(oC, iC, kT, kH, kW)
+                bias = torch.rand(oC)
+
+            names_for_user: [input, kernel, bias]
+
+            names_from_user: [out]
+
+            test_code: |
+                import random
+                import torch
+                from torch.nn import functional as F
+
+                # Check correctness
+                ref = F.conv3d(input, kernel, bias)
+
+                # Check array features
+                if not isinstance(out, torch.Tensor):
+                  feedback.add_feedback("'%s' is not a torch.Tensor" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+                if out.shape != ref.shape:
+                  feedback.add_feedback("'%s' does not have the correct shape. Expected %s, got %s." % ("out", ref.shape, out.shape))
+                  raise GradingComplete()
+
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete
+
+        -
+            type: PythonCodeQuestion
+            id: max_pooling
+            access_rules:
+                add_permissions:
+                   - change_answer
+            value: 1
+            timeout: 30
+            show_setup_code: True
+            prompt: |
+                # 3D Max Pooling
+                Your code will take as input:
+
+                - a tensor `input` with shape `(n, iC, T, H, W)`;
+                - a kernel temporal span `kT`, height `kH` and width `kW`;
+                - a stride `s`;
+
+                It needs then to apply
+                a 3D max-pooling over `input`, using the given kernel size and
+                the same stride `s` on all axes, and store the result in `out`.
+                Input `input` has dtype `torch.float32`. `s` is an integer.
+
+            setup_code: |
+                import random
+                import torch
+
+                n = random.randint(2, 6)
+                iC = random.randint(2, 6)
+                T = random.randint(10, 20)
+                H = random.randint(10, 20)
+                W = random.randint(10, 20)
+                kT = random.randint(2, 5)
+                kH = random.randint(2, 5)
+                kW = random.randint(2, 5)
+                s = random.randint(2, 3)
+                input = torch.rand(n, iC, T, H, W)
+
+            names_for_user: [input, kT, kH, kW, s]
+
+            names_from_user: [out]
+
+            test_code: |
+                import base64
+                import matplotlib.pyplot as plt
+                import io
+                import random
+                import torch
+                from torch.nn import functional as F
+
+                # Check correctness
+                ref = F.max_pool3d(input, kernel_size=(kT, kH, kW), stride=s)
+
+                # Check array features
+                if not isinstance(out, torch.Tensor):
+                  feedback.add_feedback("'%s' is not a torch.Tensor" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+                if out.shape != ref.shape:
+                  feedback.add_feedback("'%s' does not have the correct shape. Expected %s, got %s." % ("out", ref.shape, out.shape))
+                  raise GradingComplete()
+
+                good = torch.allclose(ref, out)
+                if not good:
+                  feedback.add_feedback("'%s' is inaccurate" % "out")
+                  feedback.set_points(0)
+                  raise GradingComplete()
+
+                feedback.set_points(1)
+                raise GradingComplete
+
