@@ -60,21 +60,18 @@ pages:
         - What method or algorithm are you proposing? If there are existing implementations, will you use them and how? How do you plan to improve or modify such implementations? You don't have to have an exact answer at this point, but you should have a general sense of how you will approach the problem.
         - How will you evaluate your results? What kind of results do you expect (e.g. which measures)? What kind of approaches will you compare your results against (e.g. which methods from the literature and/or which baselines)?
 
-        If you choose your own methodological and/or applicative scenario, the pipeline of your project should contain:
+        Also, the pipeline of your project should contain:
         
         - The use of classical image-processing operators (e.g., Filters, morphological operators, etc.)
         - The use of at least a geometric-based algorithm or component (e.g., Perspective distortion correction, visual SLAM, etc.)
         - The use of a retrieval algorithm or component.
         - A Deep learning-based component, designed and trained by you. You are free to include and use any existing network, but there should be at least one component which has been originally conceived and trained by you.
 
-        Each proposal will contain an indication of which of those constraints should be respected.
+        Each proposal needs to contain an indication of which of those constraints should be respected.
         You are free to include these elements anywhere in your pipeline, as long as they are clearly recognizable. You might also design a single component which accomplishes more than one requirement (e.g. a DL-based retrieval approach, designed and trained by you).
 
         ### Submission
         Please submit your proposal as a PDF file. Only one person on your team should submit.
-
-        ### Deadline
-        There is a strict deadline to submit your project proposal (April, 1st 2023). Teams who do not submit a proposal by the deadline, will not be counted to deliver the project and take the exam this year.
 
         ### Evaluation
         The proposal will be reviewed by the instructors and you will receive an acceptance or rejection notification. In case the proposal is rejected, you must revise and resubmit it again in a few days, until it is accepted.
